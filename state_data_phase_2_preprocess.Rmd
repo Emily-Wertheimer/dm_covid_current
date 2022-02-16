@@ -36,11 +36,13 @@ colnames(all_state_avgs_2) <- c("week", "state", "avg.death", "avg.hosp", "avg.p
 
 # find averages for all cols for e/ week in e/ state
 states <- unique(all_state_raw_2$state)
+states <- states
 weeks <- c(1, 2)
 
 for (st in states) {
   for (wk in weeks){
-    temp_df <- filter(all_state_raw_2, state == st & weeks == wk)
+    temp_results <- data.frame()
+    temp_df <- subset(all_state_raw_2, state == st & week == wk)
     avg.death <- mean(temp_df$death, na.rm = TRUE)
     avg.hosp <- mean(temp_df$hospitalized, na.rm = TRUE)
     avg.pos.tests <- mean(temp_df$positive, na.rm = TRUE)
@@ -50,7 +52,10 @@ for (st in states) {
   }
 }
 
+```
 
+```{r}
 
+}
 ```
 
