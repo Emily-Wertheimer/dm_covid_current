@@ -52,10 +52,12 @@ for (st in states) {
   }
 }
 
+# remove us territories 
+to_remove <- c('GU', 'AS', 'VI', 'MP', 'PR')
+all_state_avgs_2_clean <- subset(all_state_avgs_2, !state %in% to_remove)
+
+# write cleaned state avgs to csv
+write.csv(all_state_avgs_2_clean, "Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data\\all_state_avgs_2_clean.csv", row.names = FALSE)
 ```
 
-```{r}
-
-}
-```
 
