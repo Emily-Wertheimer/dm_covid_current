@@ -1,0 +1,46 @@
+---
+title: "Covid Phase Two Analysis
+output: html_notebook
+---
+
+
+
+```{r}
+rm(list = ls())
+
+# Download package tarball from CRAN archive
+url <- "https://cran.r-project.org/src/contrib/Archive/zipcode/zipcode_1.0.tar.gz"
+pkgFile <- "zipcode_1.0.tar.gz"
+download.file(url = url, destfile = pkgFile)
+# Install dependencies
+install.packages(c("ada", "ipred", "evd","sjmisc"))
+# Install package
+install.packages(pkgs=pkgFile, type="source", repos=NULL)
+# Delete package tarball
+unlink(pkgFile)
+
+# import libraries
+library(ggplot2)
+library(zipcode) # install only available through archive
+library(maps)
+library(ggpubr)
+library("PerformanceAnalytics") # for chart correlation
+library(usmap) # for plotting data us maps
+library(scales) # for muted() function
+library(tidyverse)
+library(dplyr)
+# library(memisc)
+library(MASS)
+```
+
+# load data
+```{r}
+setwd("Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data")
+
+data.all.2 <- read.csv("data_all_phase2_306sub_with_attitude.csv")
+tracker <- read.csv("all_states_excel_formatted.csv")
+state_name <- read.csv("state_name.csv")
+state_pops <- read.csv("state_pops2.csv")
+data.all$age <- as.numeric(as.character(data.all$age)) + 17 # correct coding
+#rm(data.attitude)
+```
