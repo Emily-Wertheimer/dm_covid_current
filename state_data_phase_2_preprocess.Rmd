@@ -1,0 +1,56 @@
+---
+title: "state_data_preprocessing"
+output: html_notebook
+---
+
+
+```{r}
+# load data
+setwd("C:/Users/ekw28/ekw_lab_projects/dm_covid/data")
+all_state_raw_2 <- read.csv("all_states_atlantic_data_phase_2.csv")
+
+```
+
+```{r}
+# sort data into weeks
+all_state_raw_2$week <- NA
+
+all_state_raw_2$week[all_state_raw_2$date == "2/5/2021"] <- 2
+all_state_raw_2$week[all_state_raw_2$date == "2/4/2021"] <- 2
+all_state_raw_2$week[all_state_raw_2$date == "2/3/2021"] <- 2
+all_state_raw_2$week[all_state_raw_2$date == "2/2/2021"] <- 2
+all_state_raw_2$week[all_state_raw_2$date == "2/1/2021"] <- 2
+
+all_state_raw_2$week[all_state_raw_2$date == "1/31/2021"] <- 1
+all_state_raw_2$week[all_state_raw_2$date == "1/30/2021"] <- 1
+all_state_raw_2$week[all_state_raw_2$date == "1/29/2021"] <- 1
+all_state_raw_2$week[all_state_raw_2$date == "1/28/2021"] <- 1
+all_state_raw_2$week[all_state_raw_2$date == "1/27/2021"] <- 1
+all_state_raw_2$week[all_state_raw_2$date == "1/26/2021"] <- 1
+all_state_raw_2$week[all_state_raw_2$date == "1/25/2021"] <- 1
+
+# create new df for avgs
+all_state_avgs_2 <- data.frame(matrix(ncol = 5))
+colnames(all_state_avgs_2) <- c("week", "state", "avg.death", "avg.hosp", "avg.pos.test")
+
+
+# find averages for all cols for e/ week in e/ state
+states <- unique(all_state_raw_2$state)
+weeks <- c(1, 2)
+
+for (st in states) {
+  for (wk in weeks){
+    temp_df <- filter(all_state_raw_2, state == st & weeks == wk)
+    avg.death <- mean(temp_df$death, na.rm = TRUE)
+    avg.hosp <- mean(temp_df$hospitalized, na.rm = TRUE)
+    avg.pos.tests <- mean(temp_df$positive, na.rm = TRUE)
+    temp_results <- data.frame('week' = wk, 'state' = st, 'avg.death' = avg.death, 
+                               'avg.hosp' = avg.hosp, 'avg.pos.test' = avg.pos.tests)
+    all_state_avgs_2 <- rbind(all_state_avgs_2, temp_results)
+  }
+}
+
+
+
+```
+

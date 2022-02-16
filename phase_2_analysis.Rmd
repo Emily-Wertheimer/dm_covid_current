@@ -3,7 +3,7 @@ title: "Covid Phase Two Analysis
 output: html_notebook
 ---
 
-
+# preprocessing
 
 ```{r}
 rm(list = ls())
@@ -33,14 +33,59 @@ library(dplyr)
 library(MASS)
 ```
 
-# load data
 ```{r}
+# load data
+
 setwd("Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data")
 
 data.all.2 <- read.csv("data_all_phase2_306sub_with_attitude.csv")
 tracker <- read.csv("all_states_excel_formatted.csv")
 state_name <- read.csv("state_name.csv")
 state_pops <- read.csv("state_pops2.csv")
-data.all$age <- as.numeric(as.character(data.all$age)) + 17 # correct coding
-#rm(data.attitude)
+data.all.2$age <- as.numeric(as.character(data.all.2$age)) + 17 # correct coding
 ```
+
+
+```{r}
+# merge tracker and state name
+
+colnames(state_name)[2] <- "State"
+tracker <- merge(tracker, state_name, by="State")
+tracker
+
+# separate into old and young (cutoff = 60yo)
+data.all.2$is.young <- 1
+data.all.2$is.young[data.all.2$age >= 60] = 0 
+data.all.2$is.young <- as.factor(data.all.2$is.young)
+
+# clean zipcode
+data.all.2$zip_postal_code <- as.numeric(as.character(data.all.2$zip_postal_code))
+data(zipcode)
+data.all.2$zipcode<- clean.zipcodes(data.all.2$zip_postal_code)
+
+# determine state names using zip
+colnames(zipcode)
+colnames(zipcode)[1] = "zipcode"
+data.all <- merge(data.all.2, zipcode, by="zipcode")
+
+```
+
+# need to make new tracker!!!!!
+```{r}
+# correct tracker week (in OG tracker, 1 = the most recent (final) week)
+tracker$Week <- 7-tracker$Week
+
+# sort data.all.2 start dates into weeks
+Week <- c(1,2,3,4,5,6)
+date <- c("2020-03-29", "2020-04-05", "2020-04-12", "2020-04-19", "2020-04-26", "2020-05-03")
+timing <- data.frame(Week, date)
+timing$Week <- as.integer(timing$Week)
+tracker <- merge(tracker, timing, by="Week")
+
+```
+
+```{r}
+min(data.all.2$StartDate)
+max(data.all.2$EndDate)
+```
+

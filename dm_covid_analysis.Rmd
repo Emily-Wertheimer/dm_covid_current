@@ -39,7 +39,7 @@ library(MASS)
 
 # load data
 ```{r}
-setwd("C:/Users/ekw28/OneDrive - Yale University/Desktop/DM_COVID/data")
+setwd("C:/Users/ekw28/ekw_lab_projects/dm_covid/data")
 
 data.all <- read.csv("data_all_sub.csv")
 tracker <- read.csv("all_states_excel_formatted.csv")
@@ -499,6 +499,9 @@ summary(model6GLM)
 
 # plot residuals
 plot(model6GLM$fitted.values,resid(model6GLM, type="response"))
+
+model6GLM <- glm(modData$data.all.ambig1_react_state ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate +  modData$data.all.age + modData$political.typology + modData$religiosity + modData$income.last.year + modData$household.earnings + modData$data.all.ambig_corr.med + modData$data.all.ambig_corr.mon)
+
 
 ```
 
