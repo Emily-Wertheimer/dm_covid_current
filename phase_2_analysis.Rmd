@@ -82,58 +82,29 @@ timing$Week <- as.integer(timing$week)
 tracker <- merge(tracker, timing, by="week")
 ```
 
-# combine data.all.2 and tracker
+# combine data.all.2 and tracker (look up how to do this more elegantly with lapply() )
 ```{r}
 # change data type
 tracker$state <- as.character(tracker$state)
 tracker$week <- as.integer(as.character(tracker$week))
 
-# match date in data.all.2 with week in tracker
-data.all.2$Week <- NA
-for (i in 1:nrow(data.all.2)) { 
-  if (data.all.2$state[i] != "") {
-    data.all.2$week[i] <-
-      tracker$week[as.Date(data.all$StartDate[i], "%m/%d/%Y")>=as.Date(tracker$date) &
-                        as.Date(data.all$StartDate[i], "%m/%d/%Y")<as.Date(tracker$date)+7 &
-                        as.character(data.all$state[i]) == tracker$state]
-  }
-}
-
-# combine data.all.2 and tracker by matching dates
 data.all.2$Avg.positive.tests <- NA
 data.all.2$Avg.deaths <- NA
 data.all.2$Avg.current.hospitalized <- NA
 data.all.2$week <- NA
 
-# if within the week
-for (i in 1:nrow(data.all.2)) {
-    data.all.2$Avg.positive.tests[i] <-
-      tracker$avg.pos.test[as.Date(data.all$StartDate[i],"%m/%d/%Y")>=as.Date(tracker$date) &
-                        as.Date(data.all.2$StartDate[i],"%m/%d/%Y")<as.Date(tracker$date)+7 &
-                        as.character(data.all$state[i]) == tracker$state]
-    # first line = starting week of suvey > tracker date
-    # second line = starting date of survey < tracker date + 7
-    # AKA identify time interval 
-    # third line = state of survey = matched to the tracker state
-    # all conditions are linked by logical operator "&"
-
-    data.all.2$Avg.deaths[i] <-
-      tracker$avg.death[as.Date(data.all.2$StartDate[i],"%m/%d/%Y")>=as.Date(tracker$date) &
-                        as.Date(data.all.2$StartDate[i],"%m/%d/%Y")<as.Date(tracker$date)+7 &
-                        as.character(data.all.2$state[i]) == tracker$state]
-    
-    
-    data.all.2$Avg.current.hospitalized[i] <-
-      tracker$avg.hosp[as.Date(data.all.2$StartDate[i],"%m/%d/%Y")>=as.Date(tracker$date) &
-                        as.Date(data.all.2$StartDate[i],"%m/%d/%Y")<as.Date(tracker$date)+7 &
-                        as.character(data.all.2$state[i]) == tracker$state]
-    
-    data.all.2$week[i] <-
-      tracker$week[as.Date(data.all.2$StartDate[i],"%m/%d/%Y")>=as.Date(tracker$date) &
-                        as.Date(data.all.2$StartDate[i],"%m/%d/%Y")<as.Date(tracker$date)+7 &
-                        as.character(data.all.2$state[i]) == tracker$state]
-  }
+for (i in 1:nrow(data.all.2)) { 
+  startDate <- as.numeric(format(as.Date(data.all.2$StartDate[i],format="%Y-%m-%d"), format = "%d"))
+  data.all.2$week[i] <- ifelse(startDate > 20,1,2)
   
+  state <- data.all.2$state[i]
+  week <- data.all.2$week[i]
+  data.all.2$avg.deaths[i] <- tracker$avg.death[tracker$state==state & tracker$week == week]
+  data.all.2$Avg.current.hospitalized[i] <- tracker$avg.hosp[tracker$state==state & tracker$week == week]
+  data.all.2$Avg.positive.tests[i] <- tracker$avg.pos.test[tracker$state==state & tracker$week == week]
+}
 
 ```
+
+
 
