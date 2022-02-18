@@ -106,5 +106,83 @@ for (i in 1:nrow(data.all.2)) {
 
 ```
 
+# change data type
+```{r}
+data.all.2$ambig1_react_state <- as.integer(as.character(data.all.2$ambig1_react_state))
+data.all.2$ambig1_gov_local <- as.integer(as.character(data.all.2$ambig1_gov_local))
+data.all$anx_feelingnow <- as.integer(as.character(data.all.2$anx_feelingnow))
+```
+
+END PREPROCESSING
+
+BEGIN ANALYSIS
+
+# visualization
+plot ambig1_react_ ratings v. age
+```{r}
+# ambig1_react_state v. age
+react_state_ratings <- c("Completely overreacting", "Somewhat overreacting", "Appropriate", "Somewhat insufficient", "Completely insufficient") #1-5
+
+data.all.2$ambig1_react_state <- as.factor(data.all.2$ambig1_react_state)
+
+x1 <- ggplot(data.all.2, aes(x = ambig1_react_state, y = age)) + geom_boxplot() + ggtitle("ambig1_react_state v. age phase 2") + theme(plot.title = element_text(hjust = 0.5))
+
+x1 + scale_x_discrete(labels = react_state_ratings) + theme(axis.text.x=element_text(angle=60,hjust=1))+ labs(x="rating", y="age")                                                                                                    
+# ambig1_react_econ v. age                                                                                 
+data.all.2$ambig1_react_econ <- as.factor(data.all.2$ambig1_react_econ)
+
+x2 <- ggplot(data.all.2, aes(x = ambig1_react_econ, y = age)) + geom_boxplot() + 
+  ggtitle("ambig1_react_econ v. age phase 2") + theme(plot.title = element_text(hjust = 0.5))
+
+x2 + scale_x_discrete(labels = react_state_ratings) + theme(axis.text.x=element_text(angle=60,hjust=1))+ labs(x="rating", y="age")
+
+plot(x2)
+
+# ambig1_react_nation v. age                                                                              
+data.all.2$ambig1_react_nation <- as.factor(data.all.2$ambig1_react_nation)
+
+x3 <- ggplot(data.all.2, aes(x = ambig1_react_nation, y = age)) + geom_boxplot() + 
+  ggtitle("ambig1_react_nation v. age phase 2") + theme(plot.title = element_text(hjust = 0.5))
+
+x3 + scale_x_discrete(labels = react_state_ratings) + theme(axis.text.x=element_text(angle=60,hjust=1))+ labs(x="rating", y="age")
+
+plot(x3)
+
+
+# ambig1_react_science v. age                                                                          
+data.all.2$ambig1_react_science <- as.factor(data.all.2$ambig1_react_science)
+
+x4 <- ggplot(data.all.2, aes(x = ambig1_react_science, y = age)) + geom_boxplot() + 
+  ggtitle("ambig1_react_science v. age phase 2") + theme(plot.title = element_text(hjust = 0.5))
+
+x4 + scale_x_discrete(labels = react_state_ratings) + theme(axis.text.x=element_text(angle=60,hjust=1))+ labs(x="rating", y="age")
+
+plot(x4)
+
+# ambig1_react_worker v. age                                                                          
+data.all.2$ambig1_react_worker <- as.factor(data.all.2$ambig1_react_worker)
+
+x5 <- ggplot(data.all.2, aes(x = ambig1_react_worker, y = age)) + geom_boxplot() + 
+  ggtitle("ambig1_react_worker v. age phase 2") + theme(plot.title = element_text(hjust = 0.5))
+
+x5 + scale_x_discrete(labels = react_state_ratings) + theme(axis.text.x=element_text(angle=60,hjust=1))+ labs(x="rating", y="age")
+
+plot(x5)
+
+# ambig1_react_you v. age                                                                          
+data.all.2$ambig1_react_you <- as.factor(data.all.2$ambig1_react_you)
+
+x6 <- ggplot(data.all.2, aes(x = ambig1_react_you, y = age)) + geom_boxplot() + 
+  ggtitle("ambig1_react_you v. age phase 2") + theme(plot.title = element_text(hjust = 0.5))
+
+x6 + scale_x_discrete(labels = react_state_ratings) + theme(axis.text.x=element_text(angle=60,hjust=1))+ labs(x="rating", y="age")
+
+plot(x6)
+
+```
+# plot ambig1_react_ v. political typology
+```{r}
+
+```
 
 
