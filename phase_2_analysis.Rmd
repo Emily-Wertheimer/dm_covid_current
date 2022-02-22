@@ -36,13 +36,14 @@ library(MASS)
 ```{r}
 # load data
 
-setwd("Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data")
-
+#setwd("Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data")
+setwd("C:/Users/ekw28/ekw_lab_projects/dm_covid/dm_covid_current")
 data.all.2 <- read.csv("data_all_phase2_306sub_with_attitude.csv")
-#tracker <- read.csv("all_states_avgs_2_clean.csv")
-tracker <- all_state_avgs_2_clean
+tracker <- read.csv("phase_2_state_weekly_avgs.csv")
+#tracker <- all_state_avgs_2_clean
+#state_name <- read.csv("state_name.csv")
 state_name <- read.csv("state_name.csv")
-state_pops <- read.csv("state_pops2.csv")
+state_pops <- read.csv("state_pop_2010_census.csv")
 data.all.2$age <- as.numeric(as.character(data.all.2$age)) + 17 # correct coding
 ```
 
@@ -69,6 +70,32 @@ colnames(zipcode)[1] = "zipcode"
 data.all.2 <- merge(data.all.2, zipcode, by="zipcode")
 
 ```
+# normalize avg deaths, hosps, and positive tests by state population
+```{r}
+colnames(state_pops) <- c("state", "pop")
+
+trackerNew <- merge(tracker, state_pops, by.x ="state") # trackerNew has cols for state pop & death rates
+
+trackerNew$deathRate <- NA
+
+# calc death rate for e/ state
+for (i in 1:nrow(trackerNew)){
+   trackerNew$deathRate[i] <- trackerNew$avg.death[i]/trackerNew$pop[i]
+}
+
+# calc avg positive test rate for e/ state
+trackerNew$posTestRate <- NA
+for (i in 1:nrow(trackerNew)){
+   trackerNew$posTestRate[i] <- trackerNew$avg.pos.test[i]/trackerNew$pop[i]
+}
+
+# calc avg hospitalization rate for e/ state
+trackerNew$hospRate <- NA
+for (i in 1:nrow(trackerNew)){
+   trackerNew$hospRate[i] <- trackerNew$avg.hosp[i]/trackerNew$pop[i]
+}
+```
+
 # sort data.all.2 into weeks corresponding w/ tracker 
 ```{r}
 min(data.all.2$StartDate)
@@ -110,7 +137,7 @@ for (i in 1:nrow(data.all.2)) {
 ```{r}
 data.all.2$ambig1_react_state <- as.integer(as.character(data.all.2$ambig1_react_state))
 data.all.2$ambig1_gov_local <- as.integer(as.character(data.all.2$ambig1_gov_local))
-data.all$anx_feelingnow <- as.integer(as.character(data.all.2$anx_feelingnow))
+data.all.2$anx_feelingnow <- as.integer(as.character(data.all.2$anx_feelingnow))
 ```
 
 END PREPROCESSING
@@ -182,7 +209,78 @@ plot(x6)
 ```
 # plot ambig1_react_ v. political typology
 ```{r}
+# ambig1_react_state v. politics
+ambig1_react_ratings <- c("Completely overreacting", "Somewhat overreacting", "Appropriate", "Somewhat insufficient", "Completely insufficient") #1-5
+
+political_typology_ratings <- c("Very liberal", "Liberal", "Slightly liberal", "Moderate", "Slightly conservative", "Conservative", "Very conservative", " Don't know", "Libertarian", "Other") #1-10
+
+data.all.2$ambig1_react_state <- as.numeric(data.all.2$ambig1_react_state)
+data.all.2$political_typology <- as.factor(data.all.2$political_typology)
+
+x7 <- ggplot(data.all.2, aes(x = ambig1_react_state, y = political_typology)) + geom_violin() + ggtitle("ambig1_react_state v. political_typology phase 2") + theme(plot.title = element_text(hjust = 0.5))
+
+x7 + stat_summary(fun = median, geom = "point") + scale_x_continuous(labels = react_state_ratings) + scale_y_discrete(labels = political_typology_ratings) + theme(axis.text.x=element_text(angle = 60,hjust = 1)) + labs(x = "react_state_rating", y = "political typology")
+
+# ambig1_react_science v. pt
+data.all.2$ambig1_react_science <- as.numeric(data.all.2$ambig1_react_science)
+
+x8 <- ggplot(data.all.2, aes(x = ambig1_react_science, y = political_typology)) + geom_violin() + ggtitle("ambig1_react_science v. political_typology phase 2") + theme(plot.title = element_text(hjust = 0.5))
+
+x8 + stat_summary(fun = median, geom = "point") + scale_x_continuous(labels = ambig1_react_ratings) + scale_y_discrete(labels = political_typology_ratings) + theme(axis.text.x=element_text(angle = 60,hjust = 1)) + labs(x = "react_science_rating", y = "political typology")
+
+# ambig1_react_nation v. pt
+data.all.2$ambig1_react_nation <- as.numeric(data.all.2$ambig1_react_nation)
+
+x9 <- ggplot(data.all.2, aes(x = ambig1_react_nation, y = political_typology)) + geom_violin() + ggtitle("ambig1_react_nation v. political_typology phase 2") + theme(plot.title = element_text(hjust = 0.5))
+
+x9 + stat_summary(fun = median, geom = "point") + scale_x_continuous(labels = ambig1_react_ratings) + scale_y_discrete(labels = political_typology_ratings) + theme(axis.text.x=element_text(angle = 60,hjust = 1)) + labs(x = "react_nation_rating", y = "political typology")
+
+# ambig1_react_econ v. pt
+data.all.2$ambig1_react_econ <- as.numeric(data.all.2$ambig1_react_econ)
+
+x10 <- ggplot(data.all.2, aes(x = ambig1_react_econ, y = political_typology)) + geom_violin() + ggtitle("ambig1_react_econ v. political_typology phase 2") + theme(plot.title = element_text(hjust = 0.5))
+
+x10 + stat_summary(fun = median, geom = "point") + scale_x_continuous(labels = ambig1_react_ratings) + scale_y_discrete(labels = political_typology_ratings) + theme(axis.text.x=element_text(angle = 60,hjust = 1)) + labs(x = "react_econ_rating", y = "political typology")
+
+# ambig1_react_worker v. pt
+data.all.2$ambig1_react_worker <- as.numeric(data.all.2$ambig1_react_worker)
+
+x11 <- ggplot(data.all.2, aes(x = ambig1_react_worker, y = political_typology)) + geom_violin() + ggtitle("ambig1_react_worker v. political_typology phase 2") + theme(plot.title = element_text(hjust = 0.5))
+
+x11 + stat_summary(fun = median, geom = "point") + scale_x_continuous(labels = ambig1_react_ratings) + scale_y_discrete(labels = political_typology_ratings) + theme(axis.text.x=element_text(angle = 60,hjust = 1)) + labs(x = "react_worker_rating", y = "political typology")
+
+# ambig1_react_you v. pt
+data.all.2$ambig1_react_you <- as.numeric(data.all.2$ambig1_react_you)
+
+x12 <- ggplot(data.all.2, aes(x = ambig1_react_you, y = political_typology)) + geom_violin() + ggtitle("ambig1_react_you v. political_typology phase 2") + theme(plot.title = element_text(hjust = 0.5))
+
+x12 + stat_summary(fun = median, geom = "point") + scale_x_continuous(labels = ambig1_react_ratings) + scale_y_discrete(labels = political_typology_ratings) + theme(axis.text.x=element_text(angle = 60,hjust = 1)) + labs(x = "react_you_rating", y = "political typology")
+```
+# MODELING
+run GLM using death rate, testing, hospitalizations, age, and R&A task attitude 
+
+```{r}
+# put all data for GLM into 1 dataframe
+modData <- data.frame(data.all.2$state, data.all.2$week, data.all.2$age, data.all.2$risk.mon, data.all.2$risk.med, data.all.2$ambig_corr.mon, data.all.2$ambig_corr.med, data.all.2$ambig1_react_state)
+
+modData$death.rate <- NA
+modData$hosp.rate <- NA
+modData$pos.test.rate <- NA
+
+# get external metrics from trackerNew for e/ sub in data.all.2
+for (i in 1:nrow(modData)) {
+  # find current state & week in modData
+  currentState <- modData$data.all.2$state[i] # find current state
+  currentWeek <- modData$data.all.2$week[i] # find current week
+
+  # find matching state & week in trackerNew
+  trackerNew_data <- filter(trackerNew, state == currentState && week == currentWeek)
+  
+  # fill appropriate indices of modData with data from trackerNew_data
+  modData$death.rate[i] <- trackerNew_data$deathRate
+  modData$hosp.rate[i] <- trackerNew_data$hospRate
+  modData$pos.test.rate[i] <- trackerNew_data$posTestRate
+}
 
 ```
-
 
