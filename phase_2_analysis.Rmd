@@ -270,17 +270,109 @@ modData$pos.test.rate <- NA
 # get external metrics from trackerNew for e/ sub in data.all.2
 for (i in 1:nrow(modData)) {
   # find current state & week in modData
-  currentState <- modData$data.all.2$state[i] # find current state
-  currentWeek <- modData$data.all.2$week[i] # find current week
+  currentState <- modData$data.all.2.state[i] # find current state
+  currentWeek <- modData$data.all.2.week[i] # find current week
 
   # find matching state & week in trackerNew
-  trackerNew_data <- filter(trackerNew, state == currentState && week == currentWeek)
+  tracker_temp <- filter(trackerNew, state == currentState & week == currentWeek)
   
   # fill appropriate indices of modData with data from trackerNew_data
-  modData$death.rate[i] <- trackerNew_data$deathRate
-  modData$hosp.rate[i] <- trackerNew_data$hospRate
-  modData$pos.test.rate[i] <- trackerNew_data$posTestRate
+  modData$death.rate[i] <- tracker_temp$deathRate
+  modData$hosp.rate[i] <- tracker_temp$hospRate
+  modData$pos.test.rate[i] <- tracker_temp$posTestRate
 }
+
+```
+
+task attitudes ~ external metrics
+```{r}
+# GLM model 1: risk.mon ~ death rate + testing + hospitalizations 
+model1 <- glm(modData$data.all.2.risk.mon ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate )
+summary(model1)
+
+# GLM model 2: ambig_corr.mon ~ death rate + testing + hospitalizations
+model2 <- glm(modData$data.all.2.ambig_corr.mon ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate)
+summary(model2)
+
+# GLM model 3: risk.med ~ death rate + testing + hospitalizations + age
+model3 <- glm(modData$data.all.2.risk.med ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate)
+summary(model3)
+
+# model 4: ambig_corr.med ~ death rate + testing + hospitalizations 
+model4 <- glm(modData$data.all.2.ambig_corr.med ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate)
+summary(model4)
+```
+task attitudes ~ external metrics + age
+```{r}
+# GLM model 1: risk.mon ~ death rate + testing + hospitalizations 
+model1 <- glm(modData$data.all.2.risk.mon ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate + modData$data.all.2.age)
+summary(model1)
+
+# GLM model 2: ambig_corr.mon ~ death rate + testing + hospitalizations
+model2 <- glm(modData$data.all.2.ambig_corr.mon ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate + modData$data.all.2.age)
+summary(model2)
+
+# GLM model 3: risk.med ~ death rate + testing + hospitalizations + age
+model3 <- glm(modData$data.all.2.risk.med ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate + modData$data.all.2.age)
+summary(model3)
+
+# model 4: ambig_corr.med ~ death rate + testing + hospitalizations 
+model4 <- glm(modData$data.all.2.ambig_corr.med ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate + modData$data.all.2.age)
+summary(model4)
+```
+
+ambig1_react ~ task attitude
+```{r}
+# GLM model 5: react state ~  ambig_corr.med + ambig_corr.mon + risk.mon + risk.med
+model5GLM <- glm(modData$data.all.2.ambig1_react_state ~ modData$data.all.2.risk.med + modData$data.all.2.risk.mon + modData$data.all.2.ambig_corr.med + modData$data.all.2.ambig_corr.mon)
+summary(model5GLM)
+```
+react state ~ task attitude + age
+```{r}
+# GLM model 5: react state ~  ambig_corr.med + ambig_corr.mon + risk.mon + risk.med
+model5GLM <- glm(modData$data.all.2.ambig1_react_state ~ modData$data.all.2.risk.med + modData$data.all.2.risk.mon + modData$data.all.2.ambig_corr.med + modData$data.all.2.ambig_corr.mon + modData$data.all.2.age)
+summary(model5GLM)
+```
+# add political typology, religiosity, current earnings, and household income into model 5
+
+data.all$political_typology (1 = very liberal, 2 = liberal, 3 = slightly liberal, 4 = moderate, 5 = slightly conservative, 6 = conservative, 7 = very conservative, 8 = don't know/apolitical, 9 = libertarian, 10 = other), int
+
+data.all$religiosity_rating (1 = very religious, 2 = moderately religious, 3 = slightly religious, 4 = not sure, 5 = slightly not religious, 6 = moderately not religious, 8 = not at all religious), int
+
+data.all$household.earnings (what impact will pandemic have on household earnings in 2021? 1 = significantly decrease, 2 = moderately decrease, 3 = slightly decrease, 4 = no impact, 5 = slight increase, 6 = moderate increase, 7 = significant increase ), int
+
+data.all$income_last.year (What was the total income of your household during the last year (2020), in your own currency? Fill in the blank), char
+
+clean income
+```{r}
+# clean income_last.year -- only use numerics 
+library(readr)
+
+data.all.2$income_last.year <- as.character(data.all.2$income_last.year)
+data.all.2$income_last.year <- parse_number(data.all.2$income_last.year)
+
+# add new vars into modData 
+modData$political.typology <- data.all.2$political_typology
+modData$religiosity <- data.all.2$religiosity_rating
+modData$household.earnings <- data.all.2$household.earnings
+modData$income.last.year <- data.all.2$income_last.year
+
+# correct ordinal data --> numeric
+modData$political.typology <- as.numeric(modData$political.typology)
+modData$religiosity <- as.numeric(modData$religiosity)
+modData$household.earnings <- as.numeric(modData$household.earnings)
+
+# exclude political typology with ratings 8-10
+modData$political.typology <- na_if(modData$political.typology, "8")
+modData$political.typology <- na_if(modData$political.typology, "9")
+modData$political.typology <- na_if(modData$political.typology, "10")
+```
+
+react state ~ external metrics + task attitude + relg + $ + pt
+```{r}
+model6GLM <- glm(modData$data.all.2.ambig1_react_state ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate + modData$data.all.2.risk.med + modData$data.all.2.risk.mon + modData$data.all.2.age + modData$political.typology + modData$religiosity + modData$income.last.year + modData$household.earnings + modData$data.all.2.ambig_corr.med + modData$data.all.2.ambig_corr.mon)
+
+summary(model6GLM)
 
 ```
 
