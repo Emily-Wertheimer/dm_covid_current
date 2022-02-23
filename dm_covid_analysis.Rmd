@@ -514,9 +514,3 @@ summary(model7GLM)
 
 ```
 
-# create correlation matrix for death rate, hospitalization rate, positive test rate
-```{r}
-
-cor(as.numeric(trackerNew))
-
-```
