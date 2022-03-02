@@ -376,3 +376,107 @@ summary(model6GLM)
 
 ```
 
+
+# large states (incl. states as regressor)
+
+```{r}
+# put large states (n>= 20) from phase 1 into new dataframe
+large_states_1 <- c("CA", "TX", "OH", "NY", "FL")
+
+# find large states in phase 2
+large_states_2 <- table(modData$data.all.2.state)
+```
+
+Large states in phase 1: NY, TX, OH, CA, FL
+Large states in phase 2: NY, FL, OH, CA, PA 
+
+  **what to do since large states aren't the same? ** --> use only states w/ n>20 & complete data: OH and FL
+
+OH & FL w/ states as regressor phase 2
+```{r}
+# put into new df
+#oh_fl_2 <- filter(modData, modData$data.all.2.state == "OH" & modData$data.all.2.state == "FL")
+oh <- filter(modData, modData$data.all.2.state == "OH")
+fl <- filter(modData, modData$data.all.2.state == "FL")
+oh_fl_2 <- rbind(oh, fl)
+```
+
+debugging - why NAs in GLM summary? 
+```{r}
+# trying to see if regressors are perfectly correlated and that's why coefficients can't be estimated for e/ regressor
+cor(oh_fl_2)
+typeof(oh_fl_2)
+
+# error 'x' must be numeric -- > need to use dummy vars for state# 0 = OH, 1 = FL
+oh_fl_2$state_bin <- NA
+
+for (i in 1:nrow(oh_fl_2)) { 
+  state <- oh_fl_2$data.all.2.state[i]
+  oh_fl_2$state_bin[i] <- ifelse(state == "OH",0,1) # 0 = OH, 1 = FL
+}
+
+#remove unecessary cols
+oh_fl_2 <- subset(oh_fl_2, select = -c(data.all.2.state))
+oh_fl_2 <- subset(oh_fl_2, select = -c(state_binary))
+
+# remove NA from political typology
+is.na(oh_fl_2)
+na.omit(oh_fl_2)
+is.na(oh_fl_2)
+
+# retry cor to see if that's why NAs in model summary
+install.packages("corrplot")
+library(corrplot)
+x <- cor(oh_fl_2, y = NULL, use = "complete.obs")
+corrplot(x)
+
+# must be a problem with death rate, pos test rate, hosp rate
+```
+
+
+repeat the large state glms from phase 1 on these two large states in phase 2
+```{r}
+# risk.mon ~ death rate + positive test rate + hosp rate + age + state
+summary(glm(oh_fl_2$data.all.2.risk.mon ~ oh_fl_2$death.rate + oh_fl_2$pos.test.rate + oh_fl_2$hosp.rate + oh_fl_2$data.all.2.age + oh_fl_2$data.all.2.state))
+
+# react_state ~ risk med + risk mon + ambig med + ambig mon + pos test + death + hosp
+
+# react state ~ hosp.rate + death.rate + pos.test.rate + ambig_corr.med + ambig_corr.mon + risk.mon + risk.med + state
+
+# react_state ~ death rate + positive test rate + hospitalization rate + risk med + risk mon + ambig med + ambig mon + age + political typology + religiosity + income last year + state 
+
+# Mon ambig ~ death rate + positive test rate + hospitalization rate + age + state
+
+# Med risk ~ death rate + positive test rate + hospitalization rate + age + state
+
+# ambig_corr.med ~ death rate + positive test rate + hospitalization rate + age + state
+
+# react state ~ hosp.rate + death.rate + pos.test.rate + ambig_corr.med + ambig_corr.mon + risk.mon + risk.med + age + state
+
+
+
+```
+
+  
+trying w/ all 5 large states phase 2
+```{r}
+# create df for large states from e/ phase
+modData_large_1 <- filter(modData, modData$data.all.2.state == large_states_1)
+
+modData_large_2 <- subset(modData, data.all.2.state == large_states_2)
+```
+
+task attitudes ~ external metrics
+  ** seems like death rate and pos test rate are perfectly correlated -> showing NA in glm output **
+```{r}
+# GLM model 1: risk.mon ~ death rate + testing + hospitalizations (phase 1)
+summary(glm(modData_large_1$data.all.2.risk.mon ~ modData_large_1$death.rate + modData_large_1$pos.test.rate + modData_large_1$hosp.rate))
+
+# GLM model 2: ambig_corr.mon ~ death rate + testing + hospitalizations
+sumary((modData_large$data.all.2.ambig_corr.mon ~ modData_large$death.rate + modData_large$pos.test.rate + modData_large$hosp.rate))
+# GLM model 3: risk.med ~ death rate + testing + hospitalizations + age
+summary(glm(modData_large$data.all.2.risk.med ~ modData_large$death.rate + modData_large$pos.test.rate + modData_large$hosp.rate))
+
+# model 4: ambig_corr.med ~ death rate + testing + hospitalizations 
+summary(glm(modData_large$data.all.2.ambig_corr.med ~ modData_large$death.rate + modData_large$pos.test.rate + modData_large$hosp.rate))
+```
