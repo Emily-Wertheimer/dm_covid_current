@@ -3,16 +3,94 @@ title: "selected_questions_phase1_phase2_delta"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
-
+# import libraries
 ```{r}
-plot(cars)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+# data setup 
+```{r}
+setwd("Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data")
+
+# import phase 1 & phase 2 data (R&A, survey, external metrics)
+phase1 <- read.csv("phase1_RA_with_tracker.csv")
+phase2 <- read.csv("phase2_RA_with_tracker.csv")
+
+```
+next: 
+ - need to combine phase1 and phase 2 into 1 big df, but phase 1 and phase 2 are different dimensions. how to organize? 
+    -need to determine which cols we want in the new, big df. 
+      - should be the same # of cols for both after cleaning since we are only
+        focusing on questions used in both phases
+        
+          include: 
+          
+            age
+            week
+            state
+            
+            ambig.mon
+            ambig_corr.mon
+            risk.med
+            ambig.med                   
+            ambig_corr.med
+            
+            Avg.positive.tests          
+            Avg.total.test.results       
+            Avg.deaths                   
+            Avg.cumulative.hospitalized
+            Avg.current.hospitalized    
+            Avg.hospitalized.increase
+            
+            income last year
+            politcal typology
+            religiosity
+            
+            Are you currently covered by medical insurance?
+            This week, about how much time per day have you spent consuming the news?
+            How regularly have you been tracking the number of infections and deaths due to the COVID-19 pandemic?
+            Washing hands
+            Checking body temperature
+            Dining out
+            Attending religious services
+            Meeting family and friends in person
+            Using public transportation
+            Stocking up on daily-life supplies
+            Stocking up on prescription medication
+            Are you wearing face masks or any other protective gear to cover your face, when outside of your house?
+            Are you practicing social distancing?
+            People may feel anxious under stressful situations, such as being on edge, nervous, worrying, easily annoyed, or having                trouble relaxing. How much anxiety in general are you feeling right now regarding the COVID-19 pandemic?
+            How well-informed do you feel you are about the COVID-19 pandemic?
+            
+# combine into 1 df
+
+does NOT include the questions that we identified as interesting but are only in phase 2 
+  1.	How risk-taking do you think you are currently in daily activities (e.g. dining at restaurants, going to the gym, shopping at      stores, etc.), considering the potential exposure to viral infection?)	
+  
+  2. Compared with how you were in March 2020, how has the progression of the pandemic affected how risk-taking you are generally in     daily activities?		
+  
+  
+```{r}
+# select cols 
+
+colnames_phase1 <- c('state', 'week', 'age', 'income_last.year', 'political_typology', 'religiosity_rating', 'ambig.mon', 'ambig_corr.mon', 'risk.med', 'ambig.med', 'ambig_corr.med', 'Avg.deaths', 'Avg.positive.tests', 'Average.current.hospitalized', 'medical.insurance', 'ambig1_news_perday', "ambig1_you", 'ambig1_track_deaths', 'ambig3_you_infect', 'ambig3_family_infect', 'actions_washinghands', 'actions_checkbodtemp', 'actions_diningout', 'actions)religoiusser', 'actions_fam_inperson', 'actions_usepubtrans', 'actions_stocsupplies', 'actions_stocmed', 'actions_wearmask', 'Q1089', 'anx_feelingnow') 
+
+colnames_phase2 <- c('state', 'week', 'age', 'income_last.year', 'political_typology', 'religiosity_rating', 'ambig.mon', 'ambig_corr.mon', 'risk.med', 'ambig.med', 'ambig_corr.med', 'Avg.deaths', 'Avg.positive.tests', 'Average.current.hospitalized', 'medical.insurance', 'ambig1_news_perday', "ambig1_you", 'ambig1_track_deaths', 'ambig3_you_infect', 'ambig3_family_infect', 'actions_washinghands', 'actions_checkbodtemp', 'actions_diningout', 'actions)religoiusser', 'actions_fam_inperson', 'actions_usepubtrans', 'actions_stocsupplies', 'actions_stocmed', 'actions_wearmask', 'Q1089', 'anx_feelingnow') 
+
+# new combined df
+phase1_temp <- phase1[,colnames_phase1]
+phase2_temp <- phase2[,colnames_phase2]
+
+# cbind 
+
+```
+            
+            
+            
+            
+            
+
