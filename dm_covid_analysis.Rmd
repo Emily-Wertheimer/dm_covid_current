@@ -362,11 +362,16 @@ week6NatDeathRate <- week6AvgDeath/nationalPop
 # calc rates for each state
 ```{r}
 # calc death rate for each state
-setwd("C:/Users/ekw28/OneDrive - Yale University/Desktop/DM_COVID/data")
-state_pops2 <- read_excel("C:/Users/ekw28/ekw_lab_projects/dm_covid/data/state_pops2.xlsx")
-state_pop <- state_pops2
-state_pop <- as.data.frame(state_pops2)
-trackerNew <- merge(tracker,state_pops2,by.x ="state") # trackerNew has cols for state pop & death rates
+#setwd("C:/Users/ekw28/OneDrive - Yale University/Desktop/DM_COVID/data")
+setwd("C:/Users/ekw28/ekw_lab_projects/dm_covid/dm_covid_current")
+#state_pops <- read.xlsx("state_pops.xlsx")
+#state_pops <- read_excel("C:/Users/ekw28/ekw_lab_projects/dm_covid/dm_covid_current/state_pops.xlsx")
+state_pops <- read.csv("state_pop_2010_census.csv")
+colnames(state_pops) <- c("state", "pop")
+
+#state_pop <- state_pops2
+state_pop <- as.data.frame(state_pops)
+trackerNew <- merge(tracker,state_pops,by.x ="state") # trackerNew has cols for state pop & death rates
 
 trackerNew$deathRate <- NA
 
@@ -414,10 +419,10 @@ for (i in 1:nrow(modData)) {
   modData$pos.test.rate[i] <- trackerNew_data$posTestRate
 }
 
-# GLM model 1: risk.mon ~ death rate + testing + hospitalizations + age (using defaults)
-model1 <- glm(modData$data.all.risk.mon ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate + modData$data.all.age)
+# GLM model 1: risk.mon ~ death rate + testing + hospitalizations + 
+model1 <- glm(modData$data.all.risk.mon ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate) #+ modData$data.all.age)
 summary(model1)
-# plot residuals
+R# plot residuals
 plot(density(resid(model1, type="response")))
 sum(is.na(modData$hosp.rate))
 ggplot(modData,aes(x=death.rate, y=hosp.rate)) + 
@@ -425,21 +430,21 @@ ggplot(modData,aes(x=death.rate, y=hosp.rate)) +
 plot(model1$fitted.values,resid(model1, type="response"))
 
 
-# GLM model 2: ambig_corr.mon ~ death rate + testing + hospitalizations + age
-model2 <- glm(modData$data.all.ambig_corr.mon ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate + modData$data.all.age)
+# GLM model 2: ambig_corr.mon ~ death rate + testing + hospitalizations + 
+model2 <- glm(modData$data.all.ambig_corr.mon ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate) #+ modData$data.all.age)
 summary(model2)
 # plot residuals
 plot(model2$fitted.values,resid(model2, type="response"))
 
-# GLM model 3: risk.med ~ death rate + testing + hospitalizations + age
-model3 <- glm(modData$data.all.risk.med ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate + modData$data.all.age)
+# GLM model 3: risk.med ~ death rate + testing + hospitalizations + 
+model3 <- glm(modData$data.all.risk.med ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate) #+ modData$data.all.age)
 # plot residuals
 plot(density(resid(model3, type="response")))
 plot(model3$fitted.values,resid(model3, type="response"))
 summary(model3)
 
-# model 4: ambig_corr.med ~ death rate + testing + hospitalizations + age
-model4 <- glm(modData$data.all.ambig_corr.med ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate + modData$data.all.age)
+# model 4: ambig_corr.med ~ death rate + testing + hospitalizations + 
+model4 <- glm(modData$data.all.ambig_corr.med ~ modData$death.rate + modData$pos.test.rate + modData$hosp.rate)# + modData$data.all.age)
 
 # plot residuals
 plot(density(resid(model4, type="response")))
@@ -512,5 +517,29 @@ model7GLM <- glm(modData$data.all.ambig1_react_state ~ modData$data.all.risk.med
 
 summary(model7GLM)
 
+```
+# Large states only 
+
+```{r}
+large_states <- c("CA", "TX", "OH", "NY", "FL")
+modData_large <- filter(modData, modData$data.all.state == large_states)
+```
+
+
+```{r}
+# using only death rate as external metric    
+model7GLM <- glm(modData$data.all.ambig1_react_state ~ modData$death.rate + modData$data.all.risk.med + modData$data.all.risk.mon + modData$data.all.age + modData$political.typology + modData$religiosity + modData$income.last.year + modData$data.all.ambig_corr.med + modData$data.all.ambig_corr.mon)
+
+summary(model7GLM)
+
+# using only hosp rate as external metric    
+model8GLM <- glm(modData$data.all.ambig1_react_state ~ modData$hosp.rate + modData$data.all.risk.med + modData$data.all.risk.mon + modData$data.all.age + modData$political.typology + modData$religiosity + modData$income.last.year + modData$data.all.ambig_corr.med + modData$data.all.ambig_corr.mon)
+
+summary(model8GLM)
+
+# using only positive test rate
+model9GLM <- glm(modData$data.all.ambig1_react_state ~ modData$pos.test.rate + modData$data.all.risk.med + modData$data.all.risk.mon + modData$data.all.age + modData$political.typology + modData$religiosity + modData$income.last.year + modData$data.all.ambig_corr.med + modData$data.all.ambig_corr.mon)
+
+summary(model9GLM)
 ```
 

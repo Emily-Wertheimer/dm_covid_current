@@ -7,7 +7,7 @@ output: html_notebook
 ```{r}
 # load data
 setwd("C:/Users/ekw28/ekw_lab_projects/dm_covid/data")
-all_state_raw_2 <- read.csv("all_states_atlantic_data_phase_2.csv")
+all_state_raw_2 <- read.csv("all-states-history-2_redo.csv")
 
 ```
 
@@ -36,7 +36,7 @@ colnames(all_state_avgs_2) <- c("week", "state", "avg.death", "avg.hosp", "avg.p
 
 # find averages for all cols for e/ week in e/ state
 states <- unique(all_state_raw_2$state)
-states <- states
+#states <- states
 weeks <- c(1, 2)
 
 for (st in states) {
@@ -57,7 +57,7 @@ to_remove <- c('GU', 'AS', 'VI', 'MP', 'PR')
 all_state_avgs_2_clean <- subset(all_state_avgs_2, !state %in% to_remove)
 
 # write cleaned state avgs to csv
-write.csv(all_state_avgs_2_clean, "Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data\\all_state_avgs_2_clean.csv", row.names = FALSE)
+write.csv(all_state_avgs_2_clean, "Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data\\all_state_avgs_2_clean-2.csv", row.names = FALSE)
 ```
 
 

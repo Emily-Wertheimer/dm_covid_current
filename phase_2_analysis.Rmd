@@ -417,7 +417,6 @@ for (i in 1:nrow(oh_fl_2)) {
 
 #remove unecessary cols
 oh_fl_2 <- subset(oh_fl_2, select = -c(data.all.2.state))
-oh_fl_2 <- subset(oh_fl_2, select = -c(state_binary))
 
 # remove NA from political typology
 is.na(oh_fl_2)
@@ -425,12 +424,29 @@ na.omit(oh_fl_2)
 is.na(oh_fl_2)
 
 # retry cor to see if that's why NAs in model summary
+
+
+# must be a problem with death rate, pos test rate, hosp rate 
+  # but, corr coefficients dont look perfectly correlated, even though the corrplot makes it look like they are 
+# do spearman rank -- have ordinal vars
+# pearson is only for linear corr - is it reasonable that we expect a linear corr here
+
+
+# spearman correlation
 install.packages("corrplot")
 library(corrplot)
-x <- cor(oh_fl_2, y = NULL, use = "complete.obs")
-corrplot(x)
 
-# must be a problem with death rate, pos test rate, hosp rate
+x <- cor(oh_fl_2, y = NULL, use = "complete.obs", method = "spearman")
+spearman_corrplot <- corrplot(x, method = "number", type = "upper")
+
+# rates should be normalized by the total number of tests 
+
+
+
+
+
+
+
 ```
 
 
@@ -480,3 +496,38 @@ summary(glm(modData_large$data.all.2.risk.med ~ modData_large$death.rate + modDa
 # model 4: ambig_corr.med ~ death rate + testing + hospitalizations 
 summary(glm(modData_large$data.all.2.ambig_corr.med ~ modData_large$death.rate + modData_large$pos.test.rate + modData_large$hosp.rate))
 ```
+
+# only use 1 external metric for modeling
+```{r}
+## modeling task attitudes 
+
+# risk.mon ~ risk.med + ambig.med + ambig.mon
+
+# risk.med ~ risk.mon + ambig.med + ambig.mon
+
+# amig.mon ~ ambig.med + risk.med + risk.mon
+
+# ambig.med ~ ambig.mon + risk.mon + risk.med
+
+## modeling react state
+
+# react_state ~ death rate + age + politics + religion + income + task attitudes
+model7GLM <- glm(modData$data.all.2.ambig1_react_state ~ modData$death.rate + modData$data.all.2.risk.med + modData$data.all.2.risk.mon + modData$data.all.2.age + modData$political.typology + modData$religiosity + modData$income.last.year + modData$data.all.2.ambig_corr.med + modData$data.all.2.ambig_corr.mon)
+
+summary(model7GLM)
+
+# react_state ~ hosp rate + age + politics + religion + income + task attitudes
+
+model7GLM <- glm(modData$data.all.2.ambig1_react_state ~ modData$hosp.rate + modData$data.all.2.risk.med + modData$data.all.2.risk.mon + modData$data.all.2.age + modData$political.typology + modData$religiosity + modData$income.last.year + modData$data.all.2.ambig_corr.med + modData$data.all.2.ambig_corr.mon)
+
+summary(model7GLM)
+
+# react_state ~ pos test rate + age + politics + religion + income + task attitudes
+
+model8GLM <- glm(modData$data.all.2.ambig1_react_state ~ modData$pos.test.rate + modData$data.all.2.risk.med + modData$data.all.2.risk.mon + modData$data.all.2.age + modData$political.typology + modData$religiosity + modData$income.last.year + modData$data.all.2.ambig_corr.med + modData$data.all.2.ambig_corr.mon)
+
+summary(model8GLM)
+
+
+```
+
