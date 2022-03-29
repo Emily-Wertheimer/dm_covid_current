@@ -40,12 +40,9 @@ next:
             ambig_corr.med
             
             Avg.positive.tests          
-            Avg.total.test.results       
             Avg.deaths                   
-            Avg.cumulative.hospitalized
             Avg.current.hospitalized    
-            Avg.hospitalized.increase
-            
+
             income last year
             politcal typology
             religiosity
@@ -77,15 +74,21 @@ does NOT include the questions that we identified as interesting but are only in
 ```{r}
 # select cols 
 
-colnames_phase1 <- c('state', 'week', 'age', 'income_last.year', 'political_typology', 'religiosity_rating', 'ambig.mon', 'ambig_corr.mon', 'risk.med', 'ambig.med', 'ambig_corr.med', 'Avg.deaths', 'Avg.positive.tests', 'Average.current.hospitalized', 'medical.insurance', 'ambig1_news_perday', "ambig1_you", 'ambig1_track_deaths', 'ambig3_you_infect', 'ambig3_family_infect', 'actions_washinghands', 'actions_checkbodtemp', 'actions_diningout', 'actions)religoiusser', 'actions_fam_inperson', 'actions_usepubtrans', 'actions_stocsupplies', 'actions_stocmed', 'actions_wearmask', 'Q1089', 'anx_feelingnow') 
+colnames_phase1 <- c('state', 'week', 'age', 'income_last.year', 'political_typology', 'religiosity_rating', 'ambig.mon', 'ambig_corr.mon', 'risk.med', 'ambig.med', 'ambig_corr.med', 'Avg.deaths', 'Avg.positive.tests', 'Avg.current.hospitalized', 'medical.insurance', 'ambig1_news_perday', "ambig1_you", 'ambig1_track_deaths', 'ambig3_you_infect', 'ambig3_family_infect', 'actions_washinghands', 'actions_checkbodtemp', 'actions_diningout', 'actions_religiousser', 'actions_fam_inperson', 'actions_usepubtrans', 'actions_stocsupplies', 'actions_stocmed', 'actions_wearmask', 'Q1089', 'anx_feelingnow') 
 
-colnames_phase2 <- c('state', 'week', 'age', 'income_last.year', 'political_typology', 'religiosity_rating', 'ambig.mon', 'ambig_corr.mon', 'risk.med', 'ambig.med', 'ambig_corr.med', 'Avg.deaths', 'Avg.positive.tests', 'Average.current.hospitalized', 'medical.insurance', 'ambig1_news_perday', "ambig1_you", 'ambig1_track_deaths', 'ambig3_you_infect', 'ambig3_family_infect', 'actions_washinghands', 'actions_checkbodtemp', 'actions_diningout', 'actions)religoiusser', 'actions_fam_inperson', 'actions_usepubtrans', 'actions_stocsupplies', 'actions_stocmed', 'actions_wearmask', 'Q1089', 'anx_feelingnow') 
+colnames_phase2 <- c('state', 'week', 'age', 'income_last.year', 'political_typology', 'religiosity_rating', 'ambig.mon', 'ambig_corr.mon', 'risk.med', 'ambig.med', 'ambig_corr.med', 'Avg.deaths', 'Avg.positive.tests', 'Avg.current.hospitalized', 'medical.insurance', 'ambig1_news_perday', "ambig1_you", 'ambig1_track_deaths', 'ambig3_you_infect', 'ambig3_family_infect', 'actions_washinghands', 'actions_checkbodtemp', 'actions_diningout', 'actions_religiousser', 'actions_fam_inperson', 'actions_usepubtrans', 'actions_stocsupplies', 'actions_stocmed', 'actions_wearmask', 'Q1089', 'anx_feelingnow') 
 
 # new combined df
-phase1_temp <- phase1[,colnames_phase1]
-phase2_temp <- phase2[,colnames_phase2]
+names.use.1 <- names(phase1)[(names(phase1) %in% colnames_phase1)]
+phase1_temp <- phase1[,names.use.1]
+phase1_temp$phase <- 1
 
-# cbind 
+names.use.2 <- names(phase2)[(names(phase2) %in% colnames_phase2)]
+phase2_temp <- phase1[,names.use.2]
+phase2_temp$phase <- 2
+
+# cbind into 1 big df w/ selected cols from phase1 and phase2
+all_phases_comb <- rbind(phase1_temp, phase2_temp)
 
 ```
             
