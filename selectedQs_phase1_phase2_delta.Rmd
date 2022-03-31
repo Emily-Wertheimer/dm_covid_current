@@ -74,25 +74,81 @@ does NOT include the questions that we identified as interesting but are only in
 ```{r}
 # select cols 
 
-colnames_phase1 <- c('state', 'week', 'age', 'income_last.year', 'political_typology', 'religiosity_rating', 'ambig.mon', 'ambig_corr.mon', 'risk.med', 'ambig.med', 'ambig_corr.med', 'Avg.deaths', 'Avg.positive.tests', 'Avg.current.hospitalized', 'medical.insurance', 'ambig1_news_perday', "ambig1_you", 'ambig1_track_deaths', 'ambig3_you_infect', 'ambig3_family_infect', 'actions_washinghands', 'actions_checkbodtemp', 'actions_diningout', 'actions_religiousser', 'actions_fam_inperson', 'actions_usepubtrans', 'actions_stocsupplies', 'actions_stocmed', 'actions_wearmask', 'Q1089', 'anx_feelingnow') 
+selected_cols <- c('state', 'week', 'age', 'income_last.year', 'political_typology', 'religiosity_rating', 'ambig.mon', 'ambig_corr.mon', 'risk.med', 'ambig.med', 'ambig_corr.med', 'Avg.deaths', 'Avg.positive.tests', 'Avg.current.hospitalized', 'medical.insurance', 'ambig1_news_perday', "ambig1_you", 'ambig1_track_deaths', 'ambig3_you_infect', 'ambig3_family_infect', 'actions_washinghands', 'actions_checkbodtemp', 'actions_diningout', 'actions_religiousser', 'actions_fam_inperson', 'actions_usepubtrans', 'actions_stocsupplies', 'actions_stocmed', 'actions_wearmask', 'Q1089', 'anx_feelingnow') 
 
-colnames_phase2 <- c('state', 'week', 'age', 'income_last.year', 'political_typology', 'religiosity_rating', 'ambig.mon', 'ambig_corr.mon', 'risk.med', 'ambig.med', 'ambig_corr.med', 'Avg.deaths', 'Avg.positive.tests', 'Avg.current.hospitalized', 'medical.insurance', 'ambig1_news_perday', "ambig1_you", 'ambig1_track_deaths', 'ambig3_you_infect', 'ambig3_family_infect', 'actions_washinghands', 'actions_checkbodtemp', 'actions_diningout', 'actions_religiousser', 'actions_fam_inperson', 'actions_usepubtrans', 'actions_stocsupplies', 'actions_stocmed', 'actions_wearmask', 'Q1089', 'anx_feelingnow') 
 
 # new combined df
-names.use.1 <- names(phase1)[(names(phase1) %in% colnames_phase1)]
+names.use.1 <- names(phase1)[(names(phase1) %in% selected_cols)]
 phase1_temp <- phase1[,names.use.1]
 phase1_temp$phase <- 1
 
-names.use.2 <- names(phase2)[(names(phase2) %in% colnames_phase2)]
-phase2_temp <- phase1[,names.use.2]
+names.use.2 <- names(phase2)[(names(phase2) %in% selected_cols)]
+phase2_temp <- phase2[,names.use.2]
 phase2_temp$phase <- 2
 
 # cbind into 1 big df w/ selected cols from phase1 and phase2
-all_phases_comb <- rbind(phase1_temp, phase2_temp)
+all_phases_comb_ekw <- rbind(phase1_temp, phase2_temp)
+
+# write csv
+setwd("Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data")
+
+# write.csv(all_phases_comb_ekw, "Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data\\emily_both_phases_RA_prioriSurvey_external.csv", row.names = FALSE)
+
+write.csv(all_phases_comb_ekw,"Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data\\ekw_both_phases_RA_prioriSurvey_external.csv", row.names = FALSE)
 
 ```
             
-            
+Add worker ID col 
+Add error.med and error.mod cols
+
+Chelsea will send phase1, phase 2,  delta phase1 v phase 2
+  - Make sure theyre the same
+
+
+Scales
+  - Change how likely you think you/fam are infected
+    1-7 likert, 8 is idk
+
+# compare with chelsea's dfs
+```{r}
+# import
+setwd("Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data")
+
+phase1_cx <- read.csv("chelsea_phase1_prioriSurvey_RA.csv")
+phase2_cx <- read.csv("chelsea_phase2_prioriSurvey_RA.csv")
+both_cx <- read.csv("chelsea_bothPhase_prioriSurvey_RA.csv")
+
+
+```
+
+```{r}
+# debugging above - chelsea's dataframes aren't the same length so cant be cbinded to compare with mine
+
+length(phase1_cx) #ncol = 29
+length(phase2_cx) #ncol = 31
+
+# what 2 extra cols are in phase 2 but not phase 1? -- >"RP_self", "RP_change"    
+colnames(phase1_cx) 
+colnames(phase2_cx)
+
+# for now, remove the 2 extra cols in phase 2
+drop <- c("RP_self","RP_change")
+phase2_cx <- phase2_cx[,!(names(phase2_cx) %in% drop)]
+ncol(phase1_cx)
+ncol(phase2_cx)
+
+```
+```{r}
+# rbind and compare
+all_phases_comb_cx <- rbind(phase1_cx, phase2_cx)
+
+# write csv
+write.csv(all_phases_comb_cx, "Y:/Lab_Projects/RA_Medical_covid19/behavioral/mdm_covid19_data\\chelsea_both_phases_RA_prioriSurvey.csv", row.names = FALSE)
+
+
+```
+
+
             
             
             
